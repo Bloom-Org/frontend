@@ -1,29 +1,99 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { useWeb3Modal } from '@web3modal/wagmi/react'
-import { useAccount } from 'wagmi'
 import { disconnect } from '@wagmi/core'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { ModeToggle } from '@/components/dropdown'
 import { ChevronRight, Droplets, LogOut } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { useAccount, useDisconnect } from "wagmi";
+import { signMessage } from "@wagmi/core";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import styles from './nav.module.css'
+import { Button } from '@/components/ui/button'
+import { apolloClient } from '@/apolloClient/client'
+import { gql } from "@apollo/client";
+import { AuthenticateDocument, ChallengeDocument, ChallengeRequest, ProfilesDocument, ProfilesRequest, SignedAuthChallenge } from '@/graphql/generated'
+import Modal from './ui/modal/modal'
+import { ProfileFromHandle } from '@/app/profile/page'
 
 export function Nav() {
-  const { open } = useWeb3Modal()
-  const { address } = useAccount()
-  const pathname = usePathname()
+    const pathname = usePathname();
+    const [loading, setLoading] = useState(false);
+    const { openConnectModal } = useConnectModal();
+    const { disconnect } = useDisconnect();
+    const { address, isConnected, isConnecting } = useAccount();
+    const [profilesToChooseFrom, setProfilesToChooseFrom] = useState([] as any[]);
+
+    const getProfilesRequest = async (request: ProfilesRequest) => {
+        const result = await apolloClient.query({
+        query: gql(ProfilesDocument),
+            variables: {
+                request,
+            },
+        });
+        return result.data.profiles;
+    };
+
+
+    const generateChallenge = async (request: ChallengeRequest) => {
+        const result = await apolloClient.query({
+          query: gql(ChallengeDocument),
+          variables: {
+            request,
+          },
+        });
+        console.log(result);
+        return result.data.challenge;
+    };
+    
+    const authenticate = async (request: SignedAuthChallenge) => {
+        const result = await apolloClient.mutate({
+          mutation: gql(AuthenticateDocument),
+          variables: {
+            request,
+          },
+        });
+        
+        return result.data!.authenticate;
+    };
+
+    const completeLogin = async (id : string) => {
+        const challengeResponse = await generateChallenge({ for: id, signedBy : address });
+        // sign the text with the wallet
+        const signature = await signMessage({message: challengeResponse.text});
+    
+        const authenticatedResult = await authenticate({ id: challengeResponse.id, signature } as SignedAuthChallenge);
+    };
+
+    const login = async () => {
+        if (!loading) {
+            setLoading(true);
+            const profiles = await getProfilesRequest({where: {ownedBy: [address]}});
+            if (profiles.items.length > 0) {
+                if (profiles.items.length === 1) {
+                    completeLogin(profiles.items[0].id);
+                } else {
+                    setProfilesToChooseFrom(profiles.items);
+                }
+            } else {
+                disconnect();
+            }
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (isConnected) {
+            login();
+        }
+    }, [isConnected]);
+
+    console.log(profilesToChooseFrom);
 
   return (
-    <nav className='
-    border-b flex
-    flex-col sm:flex-row
-    items-start sm:items-center
-    sm:pr-10
-    '>
-      <div
-        className='py-3 px-8 flex flex-1 items-center p'
-      >
+    <nav>
+      <div className={styles.navBox}>
         <Link href="/" className='mr-5 flex items-center'>
           <Droplets className="opacity-85" size={19} />
           <p className={`ml-2 mr-4 text-lg font-semibold`}>lenscn</p>
@@ -41,30 +111,30 @@ export function Nav() {
             </Link>
           )
         }
-      </div>
-      <div className='
-        flex
-        sm:items-center
-        pl-8 pb-3 sm:p-0
-      '>
-        {
-          !address && (
-            <Button onClick={() => open()} variant="secondary" className="mr-4">
-          Connect Wallet
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-          )
-        }
-        {
-          address && (
-            <Button onClick={disconnect} variant="secondary" className="mr-4">
-            Disconnect
-            <LogOut className="h-4 w-4 ml-3" />
-          </Button>
-          )
-        }
-        
-        <ModeToggle />
+        <div className={styles.rightBox}>
+            {isConnected && loading &&
+                <div className={styles.walletBtnContainer}>
+                    <Button variant={"outline"}>Loading...</Button>
+                </div>
+            }
+            {(!address && !isConnecting) && 
+                <div className={styles.walletBtnContainer}>
+                    {openConnectModal && <Button onClick={() => {openConnectModal()}} variant={"outline"}>Login</Button>}
+                </div>
+            }
+            {profilesToChooseFrom && profilesToChooseFrom.length > 0 &&
+                <Modal visible={profilesToChooseFrom.length > 0} closable width={600} height={800} onClose={() => {setProfilesToChooseFrom([]); disconnect()}}>
+                    <div className={styles.profilesContainer}>
+                        {profilesToChooseFrom.map((profile, i) => {
+                            return (
+                                <ProfileFromHandle key={i} handle={profile.handle.fullHandle} />
+                            );
+                        })}
+                    </div>
+                </Modal>
+            }
+            <ModeToggle />
+        </div>
       </div>
     </nav>
   )

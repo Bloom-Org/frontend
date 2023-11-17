@@ -1,0 +1,45 @@
+.btnsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.walletBtn {
+    background-color: black;
+    color: white;
+    padding: 7.5px 10px 7.5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: fit-content;
+    font-size: 13px;
+    border: none;
+}
+
+.navBox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 7px 10px;
+    box-sizing: border-box;
+    width: 100%;
+    border-bottom: 0.5px solid lightgrey;
+}
+
+.walletBtnContainer {
+    color: rgb(200, 200, 200);
+    margin-right: 10px;
+}
+
+.profilesContainer {
+    display: flex;
+    flex-direction: column;
+    max-height: 780px;
+    overflow-y: scroll;
+}
+
+.rightBox {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-left: auto;
+}

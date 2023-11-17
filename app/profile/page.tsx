@@ -2,6 +2,11 @@
 
 import { useAccount } from 'wagmi'
 import { useProfiles } from '@lens-protocol/react-web'
+import { ProfileDocument, ProfileRequest } from '@/graphql/generated'
+import { apolloClient } from '@/apolloClient/client'
+import { gql } from "@apollo/client";
+import { useEffect, useState } from 'react';
+import styles from './profile.module.css';
 
 export default function ProfileWrapper() {
   const { address } = useAccount()
@@ -57,3 +62,39 @@ function Profile({ address }) {
     </main>
   )
 }
+
+
+
+export function ProfileFromHandle({ handle }) {
+    const [profile, setProfile] = useState<any>(null);
+   const getProfileRequest = async (request: ProfileRequest) => {
+        const result = await apolloClient.query({
+        query: gql(ProfileDocument),
+        variables: {
+            request,
+        },
+        });
+    
+        return result.data.profile;
+    };
+
+    useEffect(() => {
+        async function fetchProfile() {
+            const request = { forHandle: handle };
+            const profile = await getProfileRequest(request);
+            setProfile(profile);
+        }
+        fetchProfile();
+    }, [handle]);
+
+    if (!profile) return null;
+    console.log(profile);
+  
+    return (
+      <main className="px-10 py-14">
+        <div className={styles.container}>
+            {profile.handle.localName}
+        </div>
+      </main>
+    )
+  }
