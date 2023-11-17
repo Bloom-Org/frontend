@@ -94,22 +94,19 @@ export function ProfileFromHandle({ handle }) {
     }, [handle]);
 
     if (!profile) return null;
-
-    if (profile.handle.localName === "sdioajahsdio") {
-        console.log("YUP");
-        console.log(profile);
-    }
   
     return (
-      <main className="px-8 py-4">
-        <div className={styles.container}>
-            <Image className={styles.profilePicture} width={60} height={60} src={profile.metadata && profile.metadata.picture ? profile.metadata.picture.optimized.uri : DefaultProfileImage.src} alt="profile-image" />
-            <div>
-                <span style={{fontWeight: 500}}>@{profile.handle.localName}</span>
-                <br />
-                {profile.metadata?.displayName}
-            </div>
-        </div>
-      </main>
+        <main className="px-8 py-4">
+            <Card className="border dark:bg-slate-800">
+                    <div className={styles.container}>
+                        <Image className={styles.profilePicture} width={60} height={60} src={profile.metadata && profile.metadata.picture ? profile.metadata.picture.optimized.uri : DefaultProfileImage.src} alt="profile-image" />
+                        <div>
+                            <span style={{fontWeight: 500}}>@{profile.handle.localName}</span>
+                            <br />
+                            {profile.metadata?.displayName}
+                        </div>
+                    </div>
+            </Card>
+        </main>
     )
   }

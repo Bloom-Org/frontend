@@ -4,7 +4,7 @@ export default function Modal({ width, height, visible, closable, children, expa
     if (visible) {
         return (
             <>
-                <section className={`${styles.modal} ${expandingModal && styles.expandingModal}`} style={{ width: width, height: height, ...style }}>
+                <section className={`${styles.modal} ${expandingModal && styles.expandingModal} dark:bg-black`} style={{ width: width, height: height, ...style }}>
                     {closable && <div className={styles.closeBtn} onClick={onClose}>x</div>}
                     {children}
                 </section>

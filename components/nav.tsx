@@ -95,8 +95,6 @@ export function Nav() {
         }
     }, [isConnected]);
 
-    console.log(profilesToChooseFrom);
-
   return (
     <nav>
       <div className={styles.navBox}>
