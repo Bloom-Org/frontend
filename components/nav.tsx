@@ -18,6 +18,8 @@ import { ProfileFromHandle } from '@/components/ui/profile/page'
 import { getLoggedInAddress, getLoggedInHandle, logout, saveLoginData } from '@/lib/auth'
 import { AppContext } from '@/context/AppContext'
 import { pushRoute } from '@/lib/pushRoute'
+import Image from 'next/image'
+import FullLogo from '@/public/images/full_logo.png';
 
 export function Nav() {
     const pathname = usePathname();
@@ -49,7 +51,6 @@ export function Nav() {
             request,
           },
         });
-        console.log(result);
         return result.data.challenge;
     };
     
@@ -100,15 +101,13 @@ export function Nav() {
     }, [isConnected]);
 
   return (
-    <nav>
-      <div className={styles.navBox}>
+      <nav className={`${styles.navBox} bg-white dark:bg-slate-900`}>
         <Link href="/" className='mr-5 flex items-center'>
-          <Droplets className="opacity-85" size={19} />
-          <p className={`ml-2 mr-4 text-lg font-semibold`}>BLOOM</p>
+          <Image width={100} height={50} style={{marginTop: 3}} src={FullLogo.src} alt="logo" />
         </Link>
         {isLoggedIn &&
             <>
-                <div style={{cursor: "pointer"}} className={`mr-5 text-sm ${pathname !== '/' && 'opacity-50'}`} onClick={() => pushRoute({router: router, route: "/manage-campaigns", appState: appState})}>
+                <div style={{cursor: "pointer", whiteSpace: "nowrap"}} className={`mr-5 text-sm ${pathname !== '/' && 'opacity-50'}`} onClick={() => pushRoute({router: router, route: "/manage-campaigns", appState: appState})}>
                     <p>Manage campaigns</p>
                 </div>
                 <div style={{cursor: "pointer"}} className={`mr-5 text-sm ${pathname !== '/search' && 'opacity-60'}`} onClick={() => pushRoute({router: router, route: "/explore", appState: appState})}>
@@ -151,7 +150,6 @@ export function Nav() {
             }
             <ModeToggle />
         </div>
-      </div>
-    </nav>
+      </nav>
   )
 }
