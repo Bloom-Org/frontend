@@ -16,6 +16,7 @@ import { gql } from "@apollo/client";
 import { AuthenticateDocument, ChallengeDocument, ChallengeRequest, ProfilesDocument, ProfilesRequest, SignedAuthChallenge } from '@/graphql/generated'
 import Modal from './ui/modal/modal'
 import { ProfileFromHandle } from '@/app/profile/page'
+import { getLoggedInAddress, getLoggedInHandle, logout, saveLoginData } from '@/lib/auth'
 
 export function Nav() {
     const pathname = usePathname();
@@ -24,6 +25,8 @@ export function Nav() {
     const { disconnect } = useDisconnect();
     const { address, isConnected, isConnecting } = useAccount();
     const [profilesToChooseFrom, setProfilesToChooseFrom] = useState([] as any[]);
+    const isLoggedIn = getLoggedInAddress();
+    const loggedInHandle = getLoggedInHandle();
 
     const getProfilesRequest = async (request: ProfilesRequest) => {
         const result = await apolloClient.query({
@@ -58,12 +61,15 @@ export function Nav() {
         return result.data!.authenticate;
     };
 
-    const completeLogin = async (id : string) => {
+    const completeLogin = async (id : string, handle: string) => {
         const challengeResponse = await generateChallenge({ for: id, signedBy : address });
         // sign the text with the wallet
         const signature = await signMessage({message: challengeResponse.text});
     
         const authenticatedResult = await authenticate({ id: challengeResponse.id, signature } as SignedAuthChallenge);
+
+        saveLoginData(authenticatedResult.accessToken, authenticatedResult.refreshToken, address as string, handle);
+        setProfilesToChooseFrom([]);
     };
 
     const login = async () => {
@@ -72,7 +78,7 @@ export function Nav() {
             const profiles = await getProfilesRequest({where: {ownedBy: [address]}});
             if (profiles.items.length > 0) {
                 if (profiles.items.length === 1) {
-                    completeLogin(profiles.items[0].id);
+                    completeLogin(profiles.items[0].id, profiles.items[0].handle.localName);
                 } else {
                     setProfilesToChooseFrom(profiles.items);
                 }
@@ -84,7 +90,7 @@ export function Nav() {
     }
 
     useEffect(() => {
-        if (isConnected) {
+        if (isConnected && !isLoggedIn) {
             login();
         }
     }, [isConnected]);
@@ -112,28 +118,37 @@ export function Nav() {
           )
         }
         <div className={styles.rightBox}>
-            {isConnected && loading &&
-                <div className={styles.walletBtnContainer}>
-                    <Button variant={"outline"}>Loading...</Button>
-                </div>
-            }
-            {(!address && !isConnecting) && 
-                <div className={styles.walletBtnContainer}>
-                    {openConnectModal && <Button onClick={() => {openConnectModal()}} variant={"outline"}>Login</Button>}
-                </div>
-            }
-            {profilesToChooseFrom && profilesToChooseFrom.length > 0 &&
-                <Modal visible={profilesToChooseFrom.length > 0} closable width={600} height={800} onClose={() => {setProfilesToChooseFrom([]); disconnect()}}>
-                    <div className={styles.profilesContainer}>
-                        {profilesToChooseFrom.map((profile, i) => {
-                            return (
-                                <div key={i} onClick={() => completeLogin(profile.id)}>
-                                    <ProfileFromHandle handle={profile.handle.fullHandle} />
-                                </div>
-                            );
-                        })}
-                    </div>
-                </Modal>
+            {!isLoggedIn ?
+                <>
+                    {isConnected && loading &&
+                        <div className={styles.walletBtnContainer}>
+                            <Button variant={"outline"}>Loading...</Button>
+                        </div>
+                    }
+                    {(!address && !isConnecting) && 
+                        <div className={styles.walletBtnContainer}>
+                            {openConnectModal && <Button onClick={() => {openConnectModal()}} variant={"outline"}>Login</Button>}
+                        </div>
+                    }
+                    {profilesToChooseFrom && profilesToChooseFrom.length > 0 &&
+                        <Modal visible={profilesToChooseFrom.length > 0} closable width={600} height={800} onClose={() => {setProfilesToChooseFrom([]); disconnect()}}>
+                            <div className={styles.profilesContainer}>
+                                {profilesToChooseFrom.map((profile, i) => {
+                                    return (
+                                        <div key={i} onClick={() => completeLogin(profile.id, profile.handle.localName)}>
+                                            <ProfileFromHandle handle={profile.handle.fullHandle} />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </Modal>
+                    }
+                </>
+            :
+                <>
+                    <Button variant={"outline"} >@{loggedInHandle}</Button>
+                    <Button variant={"outline"} onClick={() => {logout(); if (address) {disconnect();}}}>Logout</Button>
+                </>
             }
             <ModeToggle />
         </div>

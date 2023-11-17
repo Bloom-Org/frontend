@@ -10,6 +10,10 @@ import styles from './profile.module.css';
 import Image from 'next/image';
 import DefaultProfileImage from '@/public/images/defaultProfileImage.png';   
 
+import {
+    Card,
+  } from "@/components/ui/card"
+
 export default function ProfileWrapper() {
   const { address } = useAccount()
   if (!address) return null

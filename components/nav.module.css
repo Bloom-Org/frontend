@@ -21,7 +21,8 @@
     align-items: center;
     padding: 7px 10px;
     box-sizing: border-box;
-    width: 100%;
+    max-width: 100%;
+    overflow-x: scroll;
     border-bottom: 0.5px solid lightgrey;
 }
 
@@ -42,4 +43,5 @@
     flex-direction: row;
     gap: 10px;
     margin-left: auto;
+    align-items: center;
 }

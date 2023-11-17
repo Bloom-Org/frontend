@@ -959,26 +959,6 @@ video {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-.py-10 {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-.py-12 {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
-}
-.py-8 {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-}
-.px-5 {
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-}
-.px-7 {
-  padding-left: 1.75rem;
-  padding-right: 1.75rem;
-}
 .pb-2 {
   padding-bottom: 0.5rem;
 }
@@ -1525,7 +1505,8 @@ video {
     align-items: center;
     padding: 7px 10px;
     box-sizing: border-box;
-    width: 100%;
+    max-width: 100%;
+    overflow-x: scroll;
     border-bottom: 0.5px solid lightgrey;
 }
 
@@ -1546,6 +1527,7 @@ video {
     flex-direction: row;
     gap: 10px;
     margin-left: auto;
+    align-items: center;
 }
 /*!**********************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[5].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[5].oneOf[12].use[3]!./node_modules/@rainbow-me/rainbowkit/dist/index.css ***!
