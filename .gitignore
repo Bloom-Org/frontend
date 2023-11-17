@@ -1,0 +1,7 @@
+### Format1  ###
+node_modules/
+node/
+
+### Format2  ###
+**/bloom-project/node_modules/**
+**/bloom-project/node/**
