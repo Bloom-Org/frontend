@@ -95,6 +95,21 @@ fragment ProfileFields on Profile {
     attributes {
       ...MetadataAttributeFields
     }
+    displayName
+    picture {
+          ... on ImageSet {
+            optimized {
+              uri
+            }
+          }
+          ... on NftImage {
+            image {
+              optimized {
+                uri
+              }
+            }
+          }
+    }
   }
   followModule {
     ...FollowModuleFields

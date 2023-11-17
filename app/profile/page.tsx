@@ -7,6 +7,8 @@ import { apolloClient } from '@/apolloClient/client'
 import { gql } from "@apollo/client";
 import { useEffect, useState } from 'react';
 import styles from './profile.module.css';
+import Image from 'next/image';
+import DefaultProfileImage from '@/public/images/defaultProfileImage.png';   
 
 export default function ProfileWrapper() {
   const { address } = useAccount()
@@ -67,12 +69,12 @@ function Profile({ address }) {
 
 export function ProfileFromHandle({ handle }) {
     const [profile, setProfile] = useState<any>(null);
-   const getProfileRequest = async (request: ProfileRequest) => {
+    const getProfileRequest = async (request: ProfileRequest) => {
         const result = await apolloClient.query({
         query: gql(ProfileDocument),
-        variables: {
-            request,
-        },
+            variables: {
+                request,
+            },
         });
     
         return result.data.profile;
@@ -88,12 +90,21 @@ export function ProfileFromHandle({ handle }) {
     }, [handle]);
 
     if (!profile) return null;
-    console.log(profile);
+
+    if (profile.handle.localName === "sdioajahsdio") {
+        console.log("YUP");
+        console.log(profile);
+    }
   
     return (
-      <main className="px-10 py-14">
+      <main className="px-8 py-4">
         <div className={styles.container}>
-            {profile.handle.localName}
+            <Image className={styles.profilePicture} width={60} height={60} src={profile.metadata && profile.metadata.picture ? profile.metadata.picture.optimized.uri : DefaultProfileImage.src} alt="profile-image" />
+            <div>
+                <span style={{fontWeight: 500}}>@{profile.handle.localName}</span>
+                <br />
+                {profile.metadata?.displayName}
+            </div>
         </div>
       </main>
     )

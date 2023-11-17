@@ -127,7 +127,9 @@ export function Nav() {
                     <div className={styles.profilesContainer}>
                         {profilesToChooseFrom.map((profile, i) => {
                             return (
-                                <ProfileFromHandle key={i} handle={profile.handle.fullHandle} />
+                                <div key={i} onClick={() => completeLogin(profile.id)}>
+                                    <ProfileFromHandle handle={profile.handle.fullHandle} />
+                                </div>
                             );
                         })}
                     </div>
