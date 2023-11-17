@@ -1,11 +1,10 @@
 'use client'
 
-import { disconnect } from '@wagmi/core'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ModeToggle } from '@/components/dropdown'
-import { ChevronRight, Droplets, LogOut } from "lucide-react"
-import { useEffect, useState } from 'react'
+import { Droplets } from "lucide-react"
+import { useContext, useEffect, useState } from 'react'
 import { useAccount, useDisconnect } from "wagmi";
 import { signMessage } from "@wagmi/core";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -15,11 +14,15 @@ import { apolloClient } from '@/apolloClient/client'
 import { gql } from "@apollo/client";
 import { AuthenticateDocument, ChallengeDocument, ChallengeRequest, ProfilesDocument, ProfilesRequest, SignedAuthChallenge } from '@/graphql/generated'
 import Modal from './ui/modal/modal'
-import { ProfileFromHandle } from '@/app/profile/page'
+import { ProfileFromHandle } from '@/components/ui/profile/page'
 import { getLoggedInAddress, getLoggedInHandle, logout, saveLoginData } from '@/lib/auth'
+import { AppContext } from '@/context/AppContext'
+import { pushRoute } from '@/lib/pushRoute'
 
 export function Nav() {
     const pathname = usePathname();
+    const router = useRouter();
+    const appState = useContext(AppContext);
     const [loading, setLoading] = useState(false);
     const { openConnectModal } = useConnectModal();
     const { disconnect } = useDisconnect();
@@ -70,6 +73,7 @@ export function Nav() {
 
         saveLoginData(authenticatedResult.accessToken, authenticatedResult.refreshToken, address as string, handle);
         setProfilesToChooseFrom([]);
+        pushRoute({router: router, route: "/manage-campaigns", appState: appState});
     };
 
     const login = async () => {
@@ -100,20 +104,17 @@ export function Nav() {
       <div className={styles.navBox}>
         <Link href="/" className='mr-5 flex items-center'>
           <Droplets className="opacity-85" size={19} />
-          <p className={`ml-2 mr-4 text-lg font-semibold`}>lenscn</p>
+          <p className={`ml-2 mr-4 text-lg font-semibold`}>BLOOM</p>
         </Link>
-        <Link href="/" className={`mr-5 text-sm ${pathname !== '/' && 'opacity-50'}`}>
-          <p>Home</p>
-        </Link>
-        <Link href="/search" className={`mr-5 text-sm ${pathname !== '/search' && 'opacity-60'}`}>
-          <p>Search</p>
-        </Link>
-        {
-          address && (
-            <Link href="/profile" className={`mr-5 text-sm ${pathname !== '/search' && 'opacity-60'}`}>
-              <p>Profile</p>
-            </Link>
-          )
+        {isLoggedIn &&
+            <>
+                <div style={{cursor: "pointer"}} className={`mr-5 text-sm ${pathname !== '/' && 'opacity-50'}`} onClick={() => pushRoute({router: router, route: "/manage-campaigns", appState: appState})}>
+                    <p>Manage campaigns</p>
+                </div>
+                <div style={{cursor: "pointer"}} className={`mr-5 text-sm ${pathname !== '/search' && 'opacity-60'}`} onClick={() => pushRoute({router: router, route: "/explore", appState: appState})}>
+                    <p>Explore</p>
+                </div>
+            </>
         }
         <div className={styles.rightBox}>
             {!isLoggedIn ?

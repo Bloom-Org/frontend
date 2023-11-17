@@ -14,6 +14,8 @@ import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { httpProvider } from "@/config/config";
 import { publicProvider } from "wagmi/providers/public";
 import { polygonMumbai, polygon } from "wagmi/chains";
+import AppProvider from '@/context/AppContext'
+import PageLoader from '@/components/pageLoader/pageLoader'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -65,12 +67,15 @@ export default function RootLayout({ children }) {
             <ApolloProvider client={apolloClient}>
                 <WagmiConfig config={config}>
                     <RainbowKitProvider appInfo={appInfo} chains={chains}>
-                        <LensProvider>
-                            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                            <Nav />
-                            {children}
-                            </ThemeProvider>
-                        </LensProvider>
+                        <AppProvider>
+                            <LensProvider>
+                                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                                <Nav />
+                                <PageLoader />
+                                {children}
+                                </ThemeProvider>
+                            </LensProvider>
+                        </AppProvider>
                     </RainbowKitProvider>
                 </WagmiConfig>
             </ApolloProvider>

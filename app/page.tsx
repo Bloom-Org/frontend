@@ -1,4 +1,6 @@
-'use client'
+export default function Home() {}
+
+/*'use client'
 import { useState } from 'react'
 import {
   useExploreProfiles,
@@ -356,3 +358,4 @@ export default function Home() {
     </main>
   )
 }
+*/
