@@ -101,7 +101,7 @@ export function Nav() {
     }, [isConnected]);
 
   return (
-      <nav className={`${styles.navBox} bg-white dark:bg-slate-900`}>
+      <nav className={`${styles.navBox} bg-white dark:bg-slate-900 dark:border-slate-800`}>
         <Link href="/" className='mr-5 flex items-center'>
           <Image width={100} height={50} style={{marginTop: 3}} src={FullLogo.src} alt="logo" />
         </Link>

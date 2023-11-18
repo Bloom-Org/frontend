@@ -6,4 +6,15 @@
     justify-content: center;
     gap: max(1%, 10px);
     max-width: 100%;
+    height: calc(100vh - 90px);
+}
+
+@media (max-width: 1129px) {
+    .container {
+        height: fit-content;
+    }
+    .postsContainer {
+        max-height: 800px;
+        overflow: scroll;
+    }
 }
