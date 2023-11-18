@@ -10,6 +10,7 @@
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@emotion/css": "^11.11.2",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/fragment-matcher": "^5.0.0",
     "@graphql-codegen/typescript": "^4.0.1",

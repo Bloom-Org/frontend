@@ -7,16 +7,30 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup} from "@/components/ui/select"
 import styles from "./manage-camapigns.module.css";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { textOnly } from '@lens-protocol/metadata';
 import { uploadIpfs } from "@/ipfs"
-import { CreateOnchainPostTypedDataDocument, OnchainPostRequest } from "@/graphql/generated"
+import { CreateOnchainPostTypedDataDocument, OnchainPostRequest, PublicationsDocument, PublicationsRequest } from "@/graphql/generated"
 import { apolloClient } from "@/apolloClient/client"
 import { gql } from "@apollo/client";
 import { signTypedData } from "@wagmi/core";
-import { omit } from "@/ethers.service";
+import { omit, splitSignature } from "@/ethers.service";
 import { broadcastOnchainRequest } from "@/broadcast/shared-broadcast";
 import { waitUntilBroadcastTransactionIsComplete } from "@/transaction/wait-until-complete";
+import { LENS_HUB_ABI, LENS_HUB_CONTRACT, OPEN_ACTION_CONTRACT } from "@/config/config"
+import { ethers } from "ethers"
+import { useAccount } from "wagmi"
+import { lensHub } from "@/lens-hub"
+import { encodeFunctionData } from "viem"
+import { useWalletClient } from "wagmi"
+import { lensHubAbi } from "@/lensHubAbi"
+import { getLoggedInProfileId } from "@/lib/auth"
+import Post from "@/components/post"
+import Modal from "@/components/ui/modal/modal"
+
+const mockPostsInitial = [
+    {title: "Mock post 1", minimumFollowers: 20, rewardPerShare: 2, image: "https://images.unsplash.com/photo-1601370552761-d129028bd833?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8Nnx8fGVufDB8fHx8fA%3D%3D", text: "This is a cool mock post.", budget: 0}
+];
 
 export default function ManageCampaigns() {
     const [postType, setPostType] = useState<string>("");
@@ -26,44 +40,37 @@ export default function ManageCampaigns() {
     const [budget, setBudget] = useState<string>("");
     const [rewardPerShare, setRewardPerShare] = useState<string>("");
     const [minFollowers, setMinFollowers] = useState<string>("");
+    const [promotedPosts, setPromotedPosts] = useState<any[]>(mockPostsInitial);
     const [loading, setLoading] = useState<boolean>(false);
+    const { address } = useAccount();
+    const { data: walletClient } = useWalletClient();
+    const [activatingPromotion, setActivatingPromotion] = useState<number>(-1);
+    const profileId = getLoggedInProfileId();
 
-    const createOnchainPostTypedData = async (request: OnchainPostRequest) => {
-        const result = await apolloClient.mutate({
-          mutation: gql(CreateOnchainPostTypedDataDocument),
-          variables: {
-            request,
-          },
-        });
-      
-        return result.data!.createOnchainPostTypedData;
-    };      
+    const clearInputs = () => {
+        setText("");
+        setBudget("");
+        setMessage("");
+        setRewardPerShare("");
+        setMinFollowers("");
+        setPostType("");
+        setPostTime("");
+    }
 
     const post = async () => {
         if (!loading) {
             if (postType) {
-                if (budget && rewardPerShare && minFollowers && postTime) {
+                if (rewardPerShare && minFollowers && postTime) {
                     if (postType === "text") {
                         if (text) {
-                            setLoading(true);
-                            const metadata = textOnly({
-                                content: text
-                            });
-                            const ipfsResult = await uploadIpfs(metadata);
-                            const request: OnchainPostRequest = {
-                                contentURI: `ipfs://${ipfsResult}`
-                            };
-                            const { id, typedData } = await createOnchainPostTypedData(request);
-                            const signature = await signTypedData({domain: omit(typedData.domain, '__typename'), types: omit(typedData.types, '__typename'), message: omit(typedData.value, '__typename'), primaryType: "Post"});
-                            const broadcastResult = await broadcastOnchainRequest({ id, signature });
-                            await waitUntilBroadcastTransactionIsComplete(broadcastResult, 'post');
-                            console.log('post onchain: signature', signature);
-                            setLoading(false);
+                            setPromotedPosts([...promotedPosts, {title: "Mock post " + JSON.stringify(promotedPosts.length + 1), image: "", text: text, budget: 0, rewardPerShare: rewardPerShare, minimumFollowers: minFollowers}]);
+                            clearInputs();
                         } else {
                             setMessage("Please write some text for your post.");        
                         }
                     } else if (postType === "image") {
-
+                        setPromotedPosts([...promotedPosts, {title: "Mock post " + JSON.stringify(promotedPosts.length + 1), image: "", text: "This is a mock post.", budget: 0,  rewardPerShare: rewardPerShare, minimumFollowers: minFollowers}]);
+                        clearInputs();
                     }
                 } else {
                     setMessage("Please complete all fields.");
@@ -74,13 +81,33 @@ export default function ManageCampaigns() {
         }
     };
 
+    const activatePromotion = () => {
+        let posts = [...promotedPosts];
+        posts[activatingPromotion].budget = parseInt(budget);
+        setPromotedPosts(posts);
+        setActivatingPromotion(-1);
+    };
+
     return (
         <div className={styles.container}>
+            <Modal visible={activatingPromotion !== -1} style={{paddingInline: 40}} closable onClose={() => setActivatingPromotion(-1)} width={600} height={300}>
+                <h1 className={styles.activateTitle}>Activate Promotion</h1>
+                <div className="flex flex-col space-y-3" style={{marginTop: 30}}>
+                    <Label htmlFor="name">Budget</Label>
+                    <Input value={budget} placeholder="e.g. 100" onChange={(e) => setBudget(e.target.value)} />
+                </div>
+                <Button variant="outline" style={{marginTop: 20}} onClick={() => activatePromotion()}>Activate Promotion</Button>
+            </Modal>
             <Card className={`w-[68%] min-w-[350px] my-4 h-[100%] ${styles.postsContainer}`} > 
                 <CardHeader>
                     <CardTitle>My promoted posts</CardTitle>
                     <CardDescription>View and manage your promoted posts.</CardDescription>
                 </CardHeader>
+                <CardContent style={{gap: 20, display: "flex", flexDirection: "column"}}>
+                    {promotedPosts.map((post, index) => {
+                        return <Post data={post} key={"post" + index} index={index} manageable activatePromotion={(i) => {setActivatingPromotion(i)}}/>
+                    })}
+                </CardContent>
             </Card>
             <div className="w-[28%] min-w-[350px] h-[100%]" style={{height: "fit-content"}}>
                 <Card className="w-[100%] my-4 h-[100%]" style={{overflow: "scroll"}}>
@@ -91,7 +118,7 @@ export default function ManageCampaigns() {
                     <CardContent>
                         <form>
                             <div className="grid w-full items-center gap-4">
-                                <Select onValueChange={(newValue) => setPostType(newValue)}>
+                                <Select value={postType} onValueChange={(newValue) => setPostType(newValue)}>
                                     <SelectTrigger className="w-[100%]">
                                         <SelectValue placeholder="Select a post type" />
                                     </SelectTrigger>
@@ -104,26 +131,22 @@ export default function ManageCampaigns() {
                                 </Select>
                                 {postType === "text" ?
                                     <div className="flex flex-col space-y-1.5">
-                                        <Textarea placeholder="What's happening?" onChange={(e) => setText(e.target.value)} style={{maxHeight: 200}} />
+                                        <Textarea value={text} placeholder="What's happening?" onChange={(e) => setText(e.target.value)} style={{maxHeight: 200}} />
                                     </div>
                                 : postType === "image" &&
                                     <div></div>
                                 }
                                 <div className="flex flex-col space-y-1.5">
-                                    <Label htmlFor="name">Inital Budget</Label>
-                                    <Input id="name" placeholder="Amount" onChange={(e) => setBudget(e.target.value)} />
-                                </div>
-                                <div className="flex flex-col space-y-1.5">
                                     <Label htmlFor="name">Reward-per-share</Label>
-                                    <Input id="name" placeholder="Amount" onChange={(e) => setRewardPerShare(e.target.value)} />
+                                    <Input value={rewardPerShare} placeholder="Amount" onChange={(e) => setRewardPerShare(e.target.value)} />
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
                                     <Label htmlFor="name">Minimum Followers</Label>
-                                    <Input id="name" placeholder="e.g. 100" onChange={(e) => setMinFollowers(e.target.value)} />
+                                    <Input value={minFollowers} placeholder="e.g. 100" onChange={(e) => setMinFollowers(e.target.value)} />
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
                                     <Label htmlFor="name">Minimum mirror time</Label>
-                                    <Select onValueChange={(newValue) => setPostTime(newValue)}>
+                                    <Select value={postTime} onValueChange={(newValue) => setPostTime(newValue)}>
                                         <SelectTrigger className="w-[100%]">
                                             <SelectValue placeholder="Select a time" />
                                         </SelectTrigger>

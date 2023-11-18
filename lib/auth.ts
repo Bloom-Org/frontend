@@ -2,6 +2,7 @@ import cookie from "react-cookies";
 
 const addressKey = "WALLET_ADDRESS";
 const profileKey = "PROFILE_HANDLE";
+const profileIdKey = "PROFILE_ID";
 
 function parseJwt(token : string) {
     let base64Url = token.split(".")[1];
@@ -10,7 +11,7 @@ function parseJwt(token : string) {
     return JSON.parse(jsonPayload);
 }
 
-export function saveLoginData(accessToken : string, refreshToken : string, address: string, profileHandle: string) {
+export function saveLoginData(accessToken : string, refreshToken : string, address: string, profileHandle: string, profileId: string) {
     const ls = localStorage || window.localStorage;
 
     if (!ls) {
@@ -25,6 +26,7 @@ export function saveLoginData(accessToken : string, refreshToken : string, addre
 
     ls.setItem(addressKey, address);
     ls.setItem(profileKey, profileHandle);
+    ls.setItem(profileIdKey, profileId);
 }
 
 export function getLoggedInAddress() {
@@ -59,6 +61,23 @@ export function getLoggedInHandle() {
     return data;
 }
 
+export function getLoggedInProfileId() {
+    if (typeof window === "undefined") return null;
+
+    const ls = localStorage || window.localStorage;
+
+    if (!ls) {
+        throw new Error("Local storage not available");
+    }
+
+    const data = ls.getItem(profileIdKey);
+
+    if (!data) return null;
+
+    return data;
+}
+
+
 export function logout() {
     cookie.save("lensToken", "", {path: "/", expires: new Date(0)});
     cookie.save("lensRefreshToken", "", {path: "/", expires: new Date(0)});
@@ -69,4 +88,5 @@ export function logout() {
     }
     ls.removeItem(addressKey);
     ls.removeItem(profileKey);
+    ls.removeItem(profileIdKey);
 }

@@ -1,0 +1,64 @@
+.postContainer {
+    border: 1px solid lightgrey;
+    border-radius: 10px;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.innerContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+}
+
+.bottomBar {
+    margin-top: 10px;
+    border-top: 1px solid lightgrey;
+    padding-top: 15px;
+}
+
+.topBar {
+    margin-bottom: 10px;
+    border-bottom: 1px solid lightgrey;
+    padding-bottom: 15px;
+}
+
+.activateBtn {
+    border-radius: 5px;
+    background-color: rgb(0, 128, 255);
+    color: white;
+    padding: 3px 6px;
+}
+
+.mirrorBtn {
+    margin-left: auto;
+    border-radius: 5px;
+    padding: 4px 10px;
+    border: 1px solid lightgrey;
+}
+
+.mirrorBtn:hover {
+    background-color: rgb(235, 235, 235);
+    border: 1px solid white;
+}
+
+.disabledBtn {
+    margin-left: auto;
+    border-radius: 5px;
+    padding: 4px 10px;
+    background-color: rgb(245, 245, 245);
+    border: 1px solid rgb(245, 245, 245);
+}
+
+.statsContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.bottomBarBottom {
+    margin-top: 10px;
+}

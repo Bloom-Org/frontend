@@ -72,7 +72,7 @@ export function Nav() {
     
         const authenticatedResult = await authenticate({ id: challengeResponse.id, signature } as SignedAuthChallenge);
 
-        saveLoginData(authenticatedResult.accessToken, authenticatedResult.refreshToken, address as string, handle);
+        saveLoginData(authenticatedResult.accessToken, authenticatedResult.refreshToken, address as string, handle, id);
         setProfilesToChooseFrom([]);
         pushRoute({router: router, route: "/manage-campaigns", appState: appState});
     };

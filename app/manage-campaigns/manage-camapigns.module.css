@@ -9,6 +9,12 @@
     height: calc(100vh - 90px);
 }
 
+.activateTitle {
+    font-weight: 500;
+    font-size: 28px;
+    margin-top: 20px;
+}
+
 @media (max-width: 1129px) {
     .container {
         height: fit-content;

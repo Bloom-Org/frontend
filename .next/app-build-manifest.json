@@ -1,5 +1,10 @@
 {
   "pages": {
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -11,6 +16,12 @@
       "static/chunks/main-app.js",
       "static/css/app/manage-campaigns/page.css",
       "static/chunks/app/manage-campaigns/page.js"
+    ],
+    "/explore/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/explore/page.css",
+      "static/chunks/app/explore/page.js"
     ]
   }
 }
