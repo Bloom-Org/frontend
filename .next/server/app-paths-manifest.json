@@ -1,4 +1,4 @@
 {
-  "/manage-campaigns/page": "app/manage-campaigns/page.js",
-  "/explore/page": "app/explore/page.js"
+  "/explore/page": "app/explore/page.js",
+  "/manage-campaigns/page": "app/manage-campaigns/page.js"
 }

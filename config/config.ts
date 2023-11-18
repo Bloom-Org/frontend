@@ -1,1 +1,4 @@
 export const httpProvider = "https://polygon-mumbai.infura.io/v3/4458cf4d1689497b9a38b1d6bbf05e78";
+export const INFURA_PROJECT_ID = "2WtnWHQ5zkGFhrKvIUSM6dWPw5J";
+export const INFURA_SECRET = "bd57ad22e1e1279bd3285b911e8711ca";
+export const STORAGE_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGYyRWI0RDUzNTRlMUYxMTU3NkY1RjUyMDI3NkZiOUE4ODc2MDA2YTgiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY1OTQzNTY3Nzg2OCwibmFtZSI6InR3aW5rZW4ifQ.5HAu7V5WW71GWKpT1LZSyjcz9Kk1F4PeZsRcyDpVe94";

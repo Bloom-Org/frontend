@@ -13,9 +13,35 @@ import { useState } from "react"
 export default function ManageCampaigns() {
     const [postType, setPostType] = useState<string>("");
     const [postTime, setPostTime] = useState<string>("");
+    const [message, setMessage] = useState("");
+    const [text, setText] = useState<string>("");
+    const [budget, setBudget] = useState<string>("");
+    const [rewardPerShare, setRewardPerShare] = useState<string>("");
+    const [minFollowers, setMinFollowers] = useState<string>("");
+    const [loading, setLoading] = useState<boolean>(false);
 
     const post = async () => {
-        
+        if (!loading) {
+            if (postType) {
+                if (budget && rewardPerShare && minFollowers && postTime) {
+                    if (postType === "text") {
+                        if (text) {
+                            setLoading(true);
+                            
+                            setLoading(false);
+                        } else {
+                            setMessage("Please write some text for your post.");        
+                        }
+                    } else if (postType === "image") {
+
+                    }
+                } else {
+                    setMessage("Please complete all fields.");
+                }
+            } else {
+                setMessage("Please select a post type.");
+            }
+        }
     };
 
     return (
@@ -48,43 +74,43 @@ export default function ManageCampaigns() {
                                 </Select>
                                 {postType === "text" ?
                                     <div className="flex flex-col space-y-1.5">
-                                        <Textarea placeholder="What's happening?" style={{maxHeight: 200}} />
+                                        <Textarea placeholder="What's happening?" onChange={(e) => setText(e.target.value)} style={{maxHeight: 200}} />
                                     </div>
                                 : postType === "image" &&
                                     <div></div>
                                 }
                                 <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="name">Inital Budget</Label>
-                                <Input id="name" placeholder="Amount" />
+                                    <Label htmlFor="name">Inital Budget</Label>
+                                    <Input id="name" placeholder="Amount" onChange={(e) => setBudget(e.target.value)} />
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="name">Reward-per-share</Label>
-                                <Input id="name" placeholder="Amount" />
+                                    <Label htmlFor="name">Reward-per-share</Label>
+                                    <Input id="name" placeholder="Amount" onChange={(e) => setRewardPerShare(e.target.value)} />
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="name">Minimum Followers</Label>
-                                <Input id="name" placeholder="e.g. 100" />
+                                    <Label htmlFor="name">Minimum Followers</Label>
+                                    <Input id="name" placeholder="e.g. 100" onChange={(e) => setMinFollowers(e.target.value)} />
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="name">Minimum mirror time</Label>
-                                <Select onValueChange={(newValue) => setPostTime(newValue)}>
-                                    <SelectTrigger className="w-[100%]">
-                                        <SelectValue placeholder="Select a time" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem value="12-h">12 hours</SelectItem>
-                                            <SelectItem value="1-d">1 day</SelectItem>
-                                            <SelectItem value="3-d">3 days</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                    <Label htmlFor="name">Minimum mirror time</Label>
+                                    <Select onValueChange={(newValue) => setPostTime(newValue)}>
+                                        <SelectTrigger className="w-[100%]">
+                                            <SelectValue placeholder="Select a time" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectItem value="12-h">12 hours</SelectItem>
+                                                <SelectItem value="1-d">1 day</SelectItem>
+                                                <SelectItem value="3-d">3 days</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </form>
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                        <Button variant="outline" onClick={() => post()}>Post</Button>
+                        <Button variant="outline" onClick={() => post()}>{!loading ? "Post" : "Creating post..."}</Button>
                     </CardFooter>
                 </Card>
             </div>
