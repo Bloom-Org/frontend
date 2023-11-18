@@ -1,361 +1,77 @@
-export default function Home() {}
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import styles from "./home.module.css";
+import Post from "@/components/post";
 
-/*'use client'
-import { useState } from 'react'
-import {
-  useExploreProfiles,
-  useExplorePublications,
-  ExploreProfilesOrderByType,
-  ExplorePublicationsOrderByType,
-  ExplorePublicationType,
-  LimitType
-} from '@lens-protocol/react-web'
 
-import {
-  Loader2, ListMusic, Newspaper,
-  PersonStanding, Shapes,
-  MessageSquare, Repeat2, Heart, Grab, ArrowRight
-} from "lucide-react"
-import { Button } from '@/components/ui/button'
-import { cn } from "@/lib/utils"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import ReactMarkdown from 'react-markdown'
+const mockData = [
+    {
+      content: "🚀 Exciting times ahead with #Bloom! 🌸 Imagine having full control over your post promotion in the decentralized social world! 💡 #LENSProtocol is about to change the game. Get ready for unparalleled empowerment and engagement. 🌐 #SocialFi #BlockchainInnovation #ComingSoon",
+      handle: "lens/awesomeuser",
+      displayName: "Max Mustermann",
+      profilePic: "data:image/jpeg;base64,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",
+      rewardPerShare: "0.01"
+    },
+    {
+      content: "🌐 Ready to be part of the SocialFi revolution? Introducing #Bloom on #LENSProtocol. Creators, get ready to set budgets, max-per-share amounts, and boost your visibility across all LENS SocialFi dApps! 🚀 Exciting, right? Stay tuned! #Blockchain",
+      handle: "lens/awesomeuser",
+      displayName: "Max Mustermann",
+      profilePic: "https://play-lh.googleusercontent.com/0SAFn-mRhhDjQNYU46ZwA7tz0xmRiQG4ZuZmuwU8lYmqj6zEpnqsee_6QDuhQ4ZofwXj=w240-h480-rw",
+      rewardPerShare: "0.5"
+    },
+    {
+      content: "🌸 Unleash your creativity and earn rewards with #Bloom! 🚀 #BLOOM on #LENSProtocol is here to empower content creators. Set budgets, gain visibility, and enjoy rewards! 🌐 Exciting times for SocialFi are just around the corner! #Innovation",
+      handle: "lens/awesomeuser",
+      displayName: "Max Mustermann",
+      profilePic: "https://play-lh.googleusercontent.com/0SAFn-mRhhDjQNYU46ZwA7tz0xmRiQG4ZuZmuwU8lYmqj6zEpnqsee_6QDuhQ4ZofwXj=w240-h480-rw",
+      rewardPerShare: "0.23"
+    },
+    {
+      content: "🚀 Calling all content creators! 🌸 Get ready to revolutionize the way you promote your content with #BLOOM on #LENSProtocol. Monetize your posts, boost visibility, and enjoy a secure and transparent blockchain experience. Join the SocialFi evolution! 🌐 #Blockchain #Decentralized",
+      handle: "lens/awesomeuser",
+      displayName: "Max Mustermann",
+      profilePic: "https://play-lh.googleusercontent.com/0SAFn-mRhhDjQNYU46ZwA7tz0xmRiQG4ZuZmuwU8lYmqj6zEpnqsee_6QDuhQ4ZofwXj=w240-h480-rw",
+      rewardPerShare: "0.15"
+    },
+    {
+      content: "🌐 Dive into the future of SocialFi with #Bloom! 🚀 Rewards, innovative promotion models, and a sustainable ecosystem on #LENSProtocol. The excitement is real! Content creators, this is your chance to be part of something extraordinary. 🌸 #SocialMediaRevolution",
+      handle: "lens/awesomeuser",
+      displayName: "Max Mustermann",
+      profilePic: "https://play-lh.googleusercontent.com/0SAFn-mRhhDjQNYU46ZwA7tz0xmRiQG4ZuZmuwU8lYmqj6zEpnqsee_6QDuhQ4ZofwXj=w240-h480-rw",
+      rewardPerShare: "0.34"
+    },
+];
 
-enum PublicationMetadataMainFocusType {
-  Article = "ARTICLE",
-  Audio = "AUDIO",
-  CheckingIn = "CHECKING_IN",
-  Embed = "EMBED",
-  Event = "EVENT",
-  Image = "IMAGE",
-  Link = "LINK",
-  Livestream = "LIVESTREAM",
-  Mint = "MINT",
-  ShortVideo = "SHORT_VIDEO",
-  Space = "SPACE",
-  Story = "STORY",
-  TextOnly = "TEXT_ONLY",
-  ThreeD = "THREE_D",
-  Transaction = "TRANSACTION",
-  Video = "VIDEO"
-}
 
 export default function Home() {
-  const [view, setView] = useState('profiles')
-  const [dashboardType, setDashboardType] = useState('dashboard')
-  let { data: profiles, error: profileError, loading: loadingProfiles } = useExploreProfiles({
-    limit: LimitType.TwentyFive,
-    orderBy: ExploreProfilesOrderByType.MostFollowers
-  }) as any
-
-  let { data: musicPubs, loading: loadingMusicPubs } = useExplorePublications({
-    limit: LimitType.TwentyFive,
-    orderBy: ExplorePublicationsOrderByType.TopCommented,
-    where: {
-      publicationTypes: [ExplorePublicationType.Post],
-      metadata: {
-        mainContentFocus: [PublicationMetadataMainFocusType.Audio]
-      }
-    }
-  }) as any
-
-  let { data: publications, loading: loadingPubs } = useExplorePublications({
-    limit: LimitType.TwentyFive,
-    orderBy: ExplorePublicationsOrderByType.LensCurated,
-    where: {
-      publicationTypes: [ExplorePublicationType.Post],
-    }
-  }) as any
-
-
-  profiles = profiles?.filter(p => p.metadata?.picture?.optimized?.uri)
-
-  publications = publications?.filter(p => {
-    if (p.metadata && p.metadata.asset) {
-      if (p.metadata.asset.image) return true
-      return false
-    }
-    return true
-  })
-  
-  return (
-    <main className="
-      px-6 py-14
-      sm:px-10
-    ">
-      <div>
-        <a target="_blank" rel="no-opener" href="https://lens.xyz">
-        <div className="cursor-pointer flex items-center bg-secondary text-foreground rounded-lg py-1 px-3 mb-2 max-w-[288px]">
-          <p className='mr-2'>📚</p>
-          <p className="text-sm">
-          Learn more about Lens Protocol.
-          </p>
-          <ArrowRight className='ml-2' size={14} />
-        </div>
-        </a>
-        <h1 className="text-5xl font-bold mt-3">
-          Social Explorer
-        </h1>
-        <p className="mt-4 max-w-[750px] text-lg text-muted-foreground sm:text-xl">
-          An application boilerplate built with a modern stack. Simple to get started building your first social app. Leveraging ShadCN, Lens Protocol, Next.js, and WalletConnect.
-        </p>
-      </div>
-
-      <div className="mt-[70px] flex ml-2">
-        <div>
-          <Button
-            variant="ghost"
-            onClick={() => setDashboardType('dashboard')}
-            className={
-            `${dashboardType !== 'dashboard' ? 'opacity-60' : '' }`
-          }>My dashboard</Button>
-        </div>
-        <div className="ml-4">
-        <Button
-          variant="ghost"
-          onClick={() => setDashboardType('algorithms')}
-          className={
-            `${dashboardType !== 'recommendation algorithms' ? 'opacity-50' : '' }`
-          }>Choose your algorithm</Button>
-        </div>
-      </div>
-
-      {
-        dashboardType === 'algorithms' && (
-          <div className='md:flex min-h-[300px] mt-3 px-6'>
-            <p>Choose your algorithm coming soon...</p>
-        </div>
-        )
-      }
-      {
-        dashboardType === 'dashboard' && (      <div className='md:flex min-h-[300px] mt-3'>
-        <div className="border border rounded-tl rounded-bl md:w-[230px] pt-3 px-2 pb-8 flex-col flex">
-          <p className='font-medium ml-4 mb-2 mt-1'>Social Views</p>
-          <Button
-            onClick={() => setView('profiles')}
-           variant={view === 'profiles' ? 'secondary': 'ghost'} className="justify-start mb-1">
-            <PersonStanding size={16} />
-            <p className="text-sm ml-2">Profiles</p>
-          </Button>
-          <Button
-            onClick={() => setView('publications')}
-            variant={view === 'publications' ? 'secondary': 'ghost'} className="justify-start mb-1">
-            <Newspaper size={16} />
-            <p className="text-sm ml-2">Publications</p>
-          </Button>
-          <Button
-            onClick={() => setView('music')}
-            variant={view === 'music' ? 'secondary': 'ghost'} 
-            className="justify-start mb-1">
-            <ListMusic size={16} />
-            <p className="text-sm ml-2">Music</p>
-          </Button>
-          <Button
-            onClick={() => setView('collect')}
-            variant={view === 'collect' ? 'secondary': 'ghost'} 
-            className="justify-start mb-1">
-            <Shapes size={16} />
-            <p className="text-sm ml-2">Collect</p>
-          </Button>
-        </div>
-        <div
-          className="
-          sm:border-t sm:border-r sm:border-b
-          rounded-tr rounded-br flex flex-1 pb-4">
-          {
-            view === 'profiles' && (
-              <div className="flex flex-1 flex-wrap p-4">
-                {
-                  loadingProfiles && (
-                    <div className="
-                      flex flex-1 justify-center items-center
-                    ">
-                      <Loader2 className="h-12 w-12 animate-spin" />
-                    </div>
-                  )
-                }
-                {
-                  profiles?.map(profile => (
-                    <a
-                      key={profile.id}
-                      className="
-                      lg:w-1/4 sm:w-1/2 p-4 cursor-pointer"
-                      rel="no-opener"
-                      target="_blank"
-                      href={`https://share.lens.xyz/u/${profile.handle.namespace}/${profile.handle.localName}`}>
-                      <div className="space-y-3">
-                          <div className="overflow-hidden rounded-md">
-                            <img
-                              className="h-auto w-auto object-cover transition-all hover:scale-105 aspect-square"
-                              src={profile.metadata?.picture?.optimized?.uri
-                            } />
-                          </div>
-                          <div className="space-y-1 text-sm">
-                            <h3 className="font-medium leading-none">{profile.handle.localName}.{profile.handle.namespace}</h3>
-                            <p className="text-xs text-muted-foreground">{profile.metadata?.displayName}</p>
-                          </div>
-                      </div>
-                    </a>
-                  ))
-                }
-              </div>
-            )
-          }
-          {
-            view === 'publications' && (
-              <div className="flex flex-1 flex-wrap flex-col">
-                {
-                  loadingPubs && (
-                    <div className="
-                      flex flex-1 justify-center items-center
-                    ">
-                      <Loader2 className="h-12 w-12 animate-spin" />
-                    </div>
-                  )
-                }
-                {
-                  publications?.map(publication => (
-                    <div
-                      className="border-b"
-                      key={publication.id}
-                      onClick={() => window.open(`https://share.lens.xyz/p/${publication.id}`, '_blank')}
-                    >
-                      <div
-                      className="
-                      space-y-3 mb-4 pt-6 pb-2
-                      sm:px-6 px-2
-                      ">
-                        <div className="flex">
-                          <Avatar>
-                            <AvatarImage src={publication.by?.metadata?.picture?.optimized?.uri} />
-                            <AvatarFallback>{publication.by.handle.localName.slice(0, 2)}</AvatarFallback>
-                          </Avatar>
-                          <div className="ml-4">
-                               <h3 className="mb-1 font-medium leading-none">{publication.by.handle.localName}.{publication.by.handle.namespace}</h3>
-                              <p className="text-xs text-muted-foreground">{publication.by.metadata?.displayName}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <img
-                            className={cn(`
-                            max-w-full sm:max-w-[500px]
-                            rounded-2xl h-auto object-cover transition-all hover:scale-105
-                            `)}
-                            src={publication.__typename === 'Post' ? publication.metadata?.asset?.image?.optimized.uri : ''}
-                          />
-                          <ReactMarkdown className="
-                          mt-4 break-words
-                          ">
-                            {publication.metadata.content.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '[LINK]($1)')}
-                          </ReactMarkdown>
-                        </div>
-                        <div>
-                          <Button className="rounded-full mr-1"  variant="secondary" >
-                            <MessageSquare className="mr-2 h-4 w-4" />
-                            {publication.stats.comments}
-                          </Button>
-                          <Button className="rounded-full mr-1" variant="secondary">
-                            <Repeat2 className="mr-2 h-4 w-4" />
-                            {publication.stats.mirrors}
-                          </Button>
-                          <Button className="rounded-full mr-1" variant="secondary">
-                            <Heart className="mr-2 h-4 w-4" />
-                            {publication.stats.upvotes}
-                          </Button>
-                          <Button className="rounded-full mr-1" variant="secondary">
-                            <Grab className="mr-2 h-4 w-4" />
-                            {publication.stats.collects}
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                }
-              </div>
-            )
-          }
-          {
-            view === 'music' && (
-              <div className="flex flex-1 flex-wrap flex-col">
-                {
-                  loadingMusicPubs && (
-                    <div className="
-                      flex flex-1 justify-center items-center
-                    ">
-                      <Loader2 className="h-12 w-12 animate-spin" />
-                    </div>
-                  )
-                }
-                {
-                  musicPubs?.map(publication => (
-                    <div
-                      className="border-b"
-                      key={publication.id}
-                      onClick={() => window.open(`https://share.lens.xyz/p/${publication.id}`, '_blank')}
-                    >
-                      <div className="space-y-3 mb-4 p-4">
-                        <div className="flex">
-                          <Avatar>
-                            <AvatarImage src={publication.by?.metadata?.picture?.optimized?.uri} />
-                            <AvatarFallback>{publication.by.handle.fullHandle.slice(0, 2)}</AvatarFallback>
-                          </Avatar>
-                          <div className="ml-4">
-                              <h3 className="mb-1 font-medium leading-none">{publication.by.handle.localName}.{publication.by.handle.namespace}</h3>
-                            <p className="text-xs text-muted-foreground">{publication.by.handle.fullName}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <img
-                             className={cn(`
-                             max-w-full sm:max-w-[500px] mb-3
-                             rounded-2xl h-auto object-cover transition-all hover:scale-105
-                             `)}
-                            src={publication.__typename === 'Post' ?
-                            publication.metadata?.asset?.cover?.optimized?.uri ?
-                            publication.metadata?.asset?.cover?.optimized?.uri :
-                            publication.metadata?.asset?.cover?.optimized?.raw?.uri : ''}
-                          />
-                          <audio controls>
-                            <source
-                              type={publication.metadata?.asset?.audio?.optimized?.mimeType}
-                              src={publication.metadata?.asset?.audio?.optimized?.uri}
+    return (
+        <div className={styles.container}>
+            <Card className={`w-[68%] min-w-[350px] my-4 h-[100%] ${styles.postsContainer}`} style={{overflow: "scroll"}}> 
+                <CardHeader>
+                    <CardTitle>Explore posts</CardTitle>
+                    <CardDescription>Explore the posts that are being sponsored at the moment.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className={styles.postsInnerContainer}>
+                        {mockData.map((postData, i) => (
+                            <Post
+                                manageable={false}
+                                data={{
+                                    text: postData.content,
+                                    handle: postData.handle,
+                                    displayName: postData.displayName,
+                                    profilePic: postData.profilePic,
+                                    image: "",
+                                    budget: 0,
+                                    rewardPerShare: parseFloat(postData.rewardPerShare),
+                                }}
+                                key={"post" + i}
+                                index={i}
+                                mirrorDisabled
                             />
-                          </audio>
-                          <ReactMarkdown className="
-                          mt-4 break-words
-                          ">
-                            {publication.metadata.content.replace(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, '[LINK]($1)')}
-                          </ReactMarkdown>
-                        </div>
-                        <div>
-                          <Button className="rounded-full mr-1"  variant="secondary" >
-                            <MessageSquare className="mr-2 h-4 w-4" />
-                            {publication.stats.comments}
-                          </Button>
-                          <Button className="rounded-full mr-1" variant="secondary">
-                            <Repeat2 className="mr-2 h-4 w-4" />
-                            {publication.stats.mirrors}
-                          </Button>
-                          <Button className="rounded-full mr-1" variant="secondary">
-                            <Heart className="mr-2 h-4 w-4" />
-                            {publication.stats.upvotes}
-                          </Button>
-                          <Button className="rounded-full mr-1" variant="secondary">
-                            <Grab className="mr-2 h-4 w-4" />
-                            {publication.stats.collects}
-                          </Button>
-                        </div>
-                      </div>
+                        ))}
                     </div>
-                  ))
-                }
-              </div>
-            )
-          }
+                </CardContent>
+            </Card>
         </div>
-      </div>)
-      }
-    </main>
-  )
+    );
 }
-*/

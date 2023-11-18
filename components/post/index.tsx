@@ -16,7 +16,7 @@ interface Post {
     mirrored?: boolean;
 }
 
-export default function Post({manageable, data, activatePromotion, index, onMirror} : {manageable: boolean, data: Post, activatePromotion?: (index: number) => void, onMirror?: (index: number) => void, index?: number}) {
+export default function Post({manageable, mirrorDisabled, data, activatePromotion, index, onMirror} : {manageable: boolean, mirrorDisabled?: boolean, data: Post, activatePromotion?: (index: number) => void, onMirror?: (index: number) => void, index?: number}) {
     return (
         <div className={styles.postContainer}>
             {!manageable &&
@@ -30,7 +30,9 @@ export default function Post({manageable, data, activatePromotion, index, onMirr
                         <div style={{marginLeft: 30}}>
                             Mirror reward: <b>{data.rewardPerShare} MATIC</b>
                         </div>
-                        <button className={`${!data.mirrored ? styles.mirrorBtn : styles.disabledBtn}`} onClick={() => {if (onMirror && !data.mirrored) {onMirror(index as number)}}}>{!data.mirrored ? "Mirror" : "You have mirrored this post!"}</button>
+                        {!mirrorDisabled &&
+                            <button className={`${!data.mirrored ? styles.mirrorBtn : styles.disabledBtn}`} onClick={() => {if (onMirror && !data.mirrored) {onMirror(index as number)}}}>{!data.mirrored ? "Mirror" : "You have mirrored this post!"}</button>
+                        }
                     </div>
                 </div>
             }
