@@ -11,6 +11,7 @@ const httpLink = createHttpLink({
 
 const authLink = setContext((_, { headers }) => {
     let lensCookie = cookie.load("lensToken");
+    console.log("lensCookie", lensCookie);
     return {
       headers: {
         ...headers,

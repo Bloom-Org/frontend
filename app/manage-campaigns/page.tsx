@@ -5,10 +5,18 @@ import { Textarea } from "@/components/ui/textarea"
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup} from "@/components/ui/select"
 import styles from "./manage-camapigns.module.css";
-import { SelectGroup, SelectLabel } from "@radix-ui/react-select"
 import { useState } from "react"
+import { textOnly } from '@lens-protocol/metadata';
+import { uploadIpfs } from "@/ipfs"
+import { CreateOnchainPostTypedDataDocument, OnchainPostRequest } from "@/graphql/generated"
+import { apolloClient } from "@/apolloClient/client"
+import { gql } from "@apollo/client";
+import { signTypedData } from "@wagmi/core";
+import { omit } from "@/ethers.service";
+import { broadcastOnchainRequest } from "@/broadcast/shared-broadcast";
+import { waitUntilBroadcastTransactionIsComplete } from "@/transaction/wait-until-complete";
 
 export default function ManageCampaigns() {
     const [postType, setPostType] = useState<string>("");
@@ -20,6 +28,17 @@ export default function ManageCampaigns() {
     const [minFollowers, setMinFollowers] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
 
+    const createOnchainPostTypedData = async (request: OnchainPostRequest) => {
+        const result = await apolloClient.mutate({
+          mutation: gql(CreateOnchainPostTypedDataDocument),
+          variables: {
+            request,
+          },
+        });
+      
+        return result.data!.createOnchainPostTypedData;
+    };      
+
     const post = async () => {
         if (!loading) {
             if (postType) {
@@ -27,7 +46,18 @@ export default function ManageCampaigns() {
                     if (postType === "text") {
                         if (text) {
                             setLoading(true);
-                            
+                            const metadata = textOnly({
+                                content: text
+                            });
+                            const ipfsResult = await uploadIpfs(metadata);
+                            const request: OnchainPostRequest = {
+                                contentURI: `ipfs://${ipfsResult}`
+                            };
+                            const { id, typedData } = await createOnchainPostTypedData(request);
+                            const signature = await signTypedData({domain: omit(typedData.domain, '__typename'), types: omit(typedData.types, '__typename'), message: omit(typedData.value, '__typename'), primaryType: "Post"});
+                            const broadcastResult = await broadcastOnchainRequest({ id, signature });
+                            await waitUntilBroadcastTransactionIsComplete(broadcastResult, 'post');
+                            console.log('post onchain: signature', signature);
                             setLoading(false);
                         } else {
                             setMessage("Please write some text for your post.");        
@@ -112,6 +142,7 @@ export default function ManageCampaigns() {
                     <CardFooter className="flex justify-between">
                         <Button variant="outline" onClick={() => post()}>{!loading ? "Post" : "Creating post..."}</Button>
                     </CardFooter>
+                    {message && <div style={{color: "red", marginInline: "25px", marginBottom: 20}}>{message}</div>}
                 </Card>
             </div>
         </div>    
