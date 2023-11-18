@@ -30,7 +30,7 @@ export default function Post({manageable, data, activatePromotion, index, onMirr
                         <div style={{marginLeft: 30}}>
                             Mirror reward: <b>{data.rewardPerShare} MATIC</b>
                         </div>
-                        <button className={`${!data.mirrored ? styles.mirrorBtn : styles.disabledBtn}`} onClick={() => {if (onMirror) {onMirror(index as number)}}}>{!data.mirrored ? "Mirror" : "You have mirrored this post!"}</button>
+                        <button className={`${!data.mirrored ? styles.mirrorBtn : styles.disabledBtn}`} onClick={() => {if (onMirror && !data.mirrored) {onMirror(index as number)}}}>{!data.mirrored ? "Mirror" : "You have mirrored this post!"}</button>
                     </div>
                 </div>
             }

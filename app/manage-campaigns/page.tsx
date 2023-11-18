@@ -19,14 +19,15 @@ import { broadcastOnchainRequest } from "@/broadcast/shared-broadcast";
 import { waitUntilBroadcastTransactionIsComplete } from "@/transaction/wait-until-complete";
 import { LENS_HUB_ABI, LENS_HUB_CONTRACT, OPEN_ACTION_CONTRACT } from "@/config/config"
 import { ethers } from "ethers"
-import { useAccount } from "wagmi"
+import { useAccount, usePrepareSendTransaction, useSendTransaction } from "wagmi"
 import { lensHub } from "@/lens-hub"
-import { encodeFunctionData } from "viem"
 import { useWalletClient } from "wagmi"
 import { lensHubAbi } from "@/lensHubAbi"
 import { getLoggedInProfileId } from "@/lib/auth"
 import Post from "@/components/post"
+import { sendTransaction } from '@wagmi/core'
 import Modal from "@/components/ui/modal/modal"
+import { parseEther, zeroAddress } from 'viem'
 
 const mockPostsInitial = [
     {title: "Mock post 1", minimumFollowers: 20, rewardPerShare: 2, image: "https://images.unsplash.com/photo-1601370552761-d129028bd833?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8Nnx8fGVufDB8fHx8fA%3D%3D", text: "This is a cool mock post.", budget: 0}
@@ -81,11 +82,18 @@ export default function ManageCampaigns() {
         }
     };
 
-    const activatePromotion = () => {
+    const activatePromotion = async () => {
         let posts = [...promotedPosts];
         posts[activatingPromotion].budget = parseInt(budget);
+         
+        const { hash } = await sendTransaction({
+            to: zeroAddress,
+            value: parseEther('0.01'),
+        })
+
         setPromotedPosts(posts);
         setActivatingPromotion(-1);
+        console.log("test");
     };
 
     return (

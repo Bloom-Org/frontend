@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Post from "@/components/post";
 import styles from "./explore.module.css";
 import { useState } from "react";
+import { signMessage } from '@wagmi/core'
 
 const startingMockData : any = [
     {
@@ -45,6 +46,8 @@ const startingMockData : any = [
 
 export default function Explore() {
     const [mockData, setMockData] = useState(startingMockData);
+    const [balance, setBalance] = useState(0);
+    const [mirroredPosts, setMirroredPosts] = useState(0);
 
     return (
         <div className={styles.container}>
@@ -70,10 +73,14 @@ export default function Explore() {
                                 }}
                                 key={"post" + i}
                                 index={i}
-                                onMirror={(index) => {
-                                    console.log("mirroring post", index);
+                                onMirror={async (index) => {
                                     let newData = [...mockData];
                                     newData[index].mirrored = true;
+                                    const signature = await signMessage({
+                                        message: 'Sign this to mirror the post',
+                                    });
+                                    setBalance(balance + parseFloat(newData[index].rewardPerShare));
+                                    setMirroredPosts(mirroredPosts + 1);
                                     setMockData(newData);
                                 }}
                             />
@@ -83,6 +90,13 @@ export default function Explore() {
             </Card>
             <div className="w-[28%] min-w-[350px] h-[100%]" style={{height: "fit-content"}}>
                 <Card className="w-[100%] my-4 h-[100%]" style={{overflow: "scroll"}}>
+                    <CardHeader>
+                        <CardTitle>Statistics</CardTitle>
+                        <CardDescription>View your progress on post mirroring and reward earning.</CardDescription>
+                        <div style={{fontSize: 25, marginTop: 20, display: "flex", flexDirection: "row", alignItems: "center", gap: 10}}><b style={{fontSize: 20}}>Mirrored posts:</b> {mirroredPosts}</div>
+                        <div style={{fontSize: 25, display: "flex", flexDirection: "row", alignItems: "center", gap: 10}}><b style={{fontSize: 20}}>Your balance:</b> {balance} MATIC</div>
+                        <button className={styles.claimRewardsBtn} onClick={async () => {const signature = await signMessage({message: 'Sign this to claim your reward',});setBalance(0)}}>Claim Rewards</button>
+                    </CardHeader>
                 </Card>
             </div>
         </div>
